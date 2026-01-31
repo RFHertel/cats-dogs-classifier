@@ -2,3 +2,5 @@ jupyter
 opencv-python
 matplotlib
 numpy
+transformers
+pillow
