@@ -6,3 +6,4 @@ transformers
 pillow
 scikit-learn
 tqdm
+albumentations
