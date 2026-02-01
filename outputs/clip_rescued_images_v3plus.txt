@@ -1,0 +1,35 @@
+# CLIP Filter V3+ Results - Rescued Images
+# These images would have been REJECTED by V3 but were SAVED by rescue rules
+# path	photo	animal	text	blur	reason	rescue_details
+----------------------------------------------------------------------------------------------------------------------------------
+..\data\PetImages\Cat\10607.jpg	0.30	0.97	0.18	103.3	RESCUED: very blurry with high animal	blur=103, animal=0.97
+..\data\PetImages\Cat\11197.jpg	0.98	0.13	0.59	172.6	RESCUED: multiple animals detected	multi=0.38, single=0.02
+..\data\PetImages\Cat\11345.jpg	1.00	0.13	0.81	398.0	RESCUED: multiple animals detected	multi=0.49, single=0.06
+..\data\PetImages\Cat\11786.jpg	0.99	0.15	0.63	302.9	RESCUED: multiple animals detected	multi=0.62, single=0.05
+..\data\PetImages\Cat\1429.jpg	0.95	0.14	0.76	162.2	RESCUED: multiple animals detected	multi=0.70, single=0.02
+..\data\PetImages\Cat\3182.jpg	0.98	0.13	0.58	661.6	RESCUED: multiple animals detected	multi=0.41, single=0.08
+..\data\PetImages\Cat\3220.jpg	0.90	0.14	0.53	417.4	RESCUED: multiple animals detected	multi=0.52, single=0.05
+..\data\PetImages\Cat\3469.jpg	0.96	0.25	0.60	9483.5	RESCUED: multiple animals detected	multi=0.92, single=0.02
+..\data\PetImages\Cat\3500.jpg	0.37	0.83	0.53	159.5	RESCUED: very blurry with high animal	blur=160, animal=0.83
+..\data\PetImages\Cat\3504.jpg	0.95	0.15	0.15	40.2	RESCUED: multiple animals detected	multi=0.30, single=0.12
+..\data\PetImages\Cat\3910.jpg	0.98	0.13	0.59	172.6	RESCUED: multiple animals detected	multi=0.38, single=0.02
+..\data\PetImages\Cat\4812.jpg	0.99	0.13	0.82	391.1	RESCUED: multiple animals detected	multi=0.38, single=0.08
+..\data\PetImages\Cat\5862.jpg	0.31	0.99	0.92	388.6	RESCUED: very blurry with high animal	blur=389, animal=0.99
+..\data\PetImages\Cat\6911.jpg	0.99	0.32	0.89	7158.6	RESCUED: multiple animals detected	multi=0.65, single=0.03
+..\data\PetImages\Cat\8521.jpg	0.37	0.84	0.47	72.5	RESCUED: very blurry with high animal	blur=73, animal=0.84
+..\data\PetImages\Cat\8937.jpg	0.34	0.90	0.17	364.4	RESCUED: very blurry with high animal	blur=364, animal=0.90
+..\data\PetImages\Dog\1920.jpg	0.96	0.43	0.77	20464.8	RESCUED: multiple animals detected	multi=0.89, single=0.06
+..\data\PetImages\Dog\2517.jpg	0.99	0.32	0.90	5647.5	RESCUED: multiple animals detected	multi=0.71, single=0.05
+..\data\PetImages\Dog\2732.jpg	0.99	0.44	0.93	12381.9	RESCUED: multiple animals detected	multi=0.36, single=0.35
+..\data\PetImages\Dog\301.jpg	0.98	0.46	0.94	6243.3	RESCUED: multiple animals detected	multi=0.49, single=0.10
+..\data\PetImages\Dog\3393.jpg	0.99	0.13	0.86	2768.5	RESCUED: multiple animals detected	multi=0.50, single=0.01
+..\data\PetImages\Dog\441.jpg	0.33	0.88	0.92	321.4	RESCUED: very blurry with high animal	blur=321, animal=0.88
+..\data\PetImages\Dog\4894.jpg	0.98	0.34	0.82	8778.0	RESCUED: multiple animals detected	multi=0.61, single=0.05
+..\data\PetImages\Dog\4984.jpg	0.36	0.98	0.56	55.1	RESCUED: very blurry with high animal	blur=55, animal=0.98
+..\data\PetImages\Dog\564.jpg	0.99	0.49	0.55	6311.9	RESCUED: multiple animals detected	multi=0.05, single=0.38
+..\data\PetImages\Dog\6509.jpg	0.97	0.36	0.85	6913.5	RESCUED: multiple animals detected	multi=0.52, single=0.03
+..\data\PetImages\Dog\6685.jpg	0.97	0.48	0.42	12673.2	RESCUED: multiple animals detected	multi=0.52, single=0.16
+..\data\PetImages\Dog\8119.jpg	0.99	0.12	0.55	97.9	RESCUED: multiple animals detected	multi=0.63, single=0.04
+..\data\PetImages\Dog\8508.jpg	0.99	0.44	0.87	13175.8	RESCUED: multiple animals detected	multi=0.34, single=0.04
+..\data\PetImages\Dog\9371.jpg	0.38	0.98	0.09	307.2	RESCUED: very blurry with high animal	blur=307, animal=0.98
+..\data\PetImages\Dog\9869.jpg	0.96	0.49	0.39	17390.9	RESCUED: multiple animals detected	multi=0.02, single=0.81

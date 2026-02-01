@@ -1,0 +1,35 @@
+Second set of images there are issues with from V3 version of clip cleaning script together with my notes. 
+
+This makes for a second V3 later where a second battery of tests can be run on the images:
+
+# CLIP Filter Results - Rejected Images Only
+# path	photo	animal	text	blur	reason
+----------------------------------------------------------------------------------------------------
+..\data\PetImages\Cat\10029.jpg	0.89	0.14	0.27	84.6	blurry photo but no animal - bad - accurately bad photo
+..\data\PetImages\Cat\10035.jpg	0.34	0.95	0.14	1917.9	not a real photo - bad - accurately not real as the cat has glass but photo realistic from human eye
+..\data\PetImages\Cat\10607.jpg	0.30	0.97	0.18	103.3	not a real photo - good - yawning cat with eyes partial closure and not paws showing and just head
+..\data\PetImages\Cat\10827.jpg	0.37	0.75	0.19	138.2	not a real photo - bad - only paws showing and not head - not way to tell what animal it is but likely cat
+..\data\PetImages\Cat\11197.jpg	0.98	0.13	0.59	172.6	blurry photo, no animal, has text - good - several kittens all held by a human (4) 
+..\data\PetImages\Cat\11282.jpg	0.99	0.15	0.54	205.1	blurry photo, no animal, has text - good - 2 cats in a cage behind bars
+..\data\PetImages\Cat\11345.jpg	1.00	0.13	0.81	398.0	blurry photo, no animal, has text - good - 3 kittens next to each other
+..\data\PetImages\Cat\11484.jpg	0.04	0.91	0.56	3500.6	not a real photo - bad - a drawing of a cat
+..\data\PetImages\Cat\11786.jpg	0.99	0.15	0.63	302.9	blurry photo, no animal, has text - good - 3 cats next to each others that are all black
+..\data\PetImages\Cat\1210.jpg	1.00	0.07	0.15	6.3	blurry photo but no animal - good - 2 cats in an extremely blurry image. Looks like 2 kittens
+..\data\PetImages\Cat\1429.jpg	0.95	0.14	0.76	162.2	blurry photo, no animal, has text - good -  multiple kittens in a basket
+..\data\PetImages\Cat\1600.jpg	0.38	0.86	0.46	2017.1	not a real photo - bad - cat photoshopped in a non realistic background
+..\data\PetImages\Cat\1885.jpg	0.97	0.46	0.59	8419.9	real photo, no animal, has text - good - cat in a cage behind bars
+..\data\PetImages\Cat\2013.jpg	0.51	0.91	0.68	11694.5	did not meet criteria - bad - cat with a non realistic thought bubble above his head
+..\data\PetImages\Cat\2337.jpg	1.00	0.14	0.17	171.4	blurry photo but no animal - good - people holding cats where there legs are hard to see
+..\data\PetImages\Cat\2663.jpg	0.06	0.80	0.66	7415.9	not a real photo - bad - cat with a bunch of lines through it that looks like a drawing 
+..\data\PetImages\Cat\2939.jpg	0.07	0.82	0.28	18004.4	not a real photo - bad - drawing 
+..\data\PetImages\Cat\3016.jpg	0.04	0.45	0.02	3282.0	not a real photo - bad - photoshopped cat on background
+..\data\PetImages\Cat\3182.jpg	0.98	0.13	0.58	661.6	blurry photo, no animal, has text - good - a lot of kittens
+..\data\PetImages\Cat\3220.jpg	0.90	0.14	0.53	417.4	blurry photo, no animal, has text - good - a lot of kittens
+..\data\PetImages\Cat\3469.jpg	0.96	0.25	0.60	9483.5	real photo, no animal, has text - good - 3 cats all together
+..\data\PetImages\Cat\3500.jpg	0.37	0.83	0.53	159.5	not a real photo - good - a cat with a towel or blanket as a solid background
+..\data\PetImages\Cat\3504.jpg	0.95	0.15	0.15	40.2	blurry photo but no animal - good - 2 cats together
+
+..\data\PetImages\Cat\354.jpg	0.20	0.89	0.04	598.7	not a real photo - bad - a photo realistic cat image that is likely fake
+..\data\PetImages\Cat\3632.jpg	1.00	0.14	0.75	466.3	blurry photo, no animal, has text - good - 2 cats together
+
+Please help me figure out how to fix how to fix these issues and still pass my earlier tests
