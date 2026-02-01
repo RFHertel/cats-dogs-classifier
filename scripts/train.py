@@ -160,10 +160,113 @@ def load_data(config):
     
     return train_loader, val_loader
 
+# =============================================================================
+# Model
+# =============================================================================
+
+def create_model(num_classes=2, pretrained=True):
+    """Create MobileNetV2 with pretrained weights."""
+    from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
+    
+    if pretrained:
+        weights = MobileNet_V2_Weights.IMAGENET1K_V1
+        model = mobilenet_v2(weights=weights)
+    else:
+        model = mobilenet_v2(weights=None)
+    
+    # Replace classifier head for our task
+    model.classifier[1] = nn.Linear(1280, num_classes)
+    return model
+
 
 # =============================================================================
-# Main
+# Trainer
 # =============================================================================
+
+class Trainer:
+    """Handles model training and validation."""
+    
+    def __init__(self, model, train_loader, val_loader, config):
+        self.model = model
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.config = config
+        self.device = config['device']
+        
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = torch.optim.Adam(
+            model.parameters(), 
+            lr=config['learning_rate']
+        )
+    
+    def train_epoch(self):
+        """Train for one epoch."""
+        self.model.train()
+        
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        
+        for images, labels in self.train_loader:
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+            
+            self.optimizer.zero_grad()
+            outputs = self.model(images)
+            loss = self.criterion(outputs, labels)
+            
+            loss.backward()
+            self.optimizer.step()
+            
+            running_loss += loss.item() * images.size(0)
+            _, predicted = outputs.max(1)
+            total += labels.size(0)
+            correct += predicted.eq(labels).sum().item()
+        
+        return running_loss / total, correct / total
+    
+    def validate(self):
+        """Validate the model."""
+        self.model.eval()
+        
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        
+        with torch.no_grad():
+            for images, labels in self.val_loader:
+                images = images.to(self.device)
+                labels = labels.to(self.device)
+                
+                outputs = self.model(images)
+                loss = self.criterion(outputs, labels)
+                
+                running_loss += loss.item() * images.size(0)
+                _, predicted = outputs.max(1)
+                total += labels.size(0)
+                correct += predicted.eq(labels).sum().item()
+        
+        return running_loss / total, correct / total
+    
+    def fit(self, epochs):
+        """Train for multiple epochs."""
+        print(f"Training for {epochs} epochs...")
+        print("-" * 60)
+        
+        for epoch in range(epochs):
+            start = time.time()
+            
+            train_loss, train_acc = self.train_epoch()
+            val_loss, val_acc = self.validate()
+            
+            elapsed = time.time() - start
+            print(f"Epoch {epoch+1:3d}/{epochs} | "
+                  f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                  f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
+                  f"Time: {elapsed:.1f}s")
+        
+        print("-" * 60)
+
 
 if __name__ == '__main__':
     print("=" * 60)
@@ -171,26 +274,27 @@ if __name__ == '__main__':
     print("=" * 60)
     print()
     
-    # Print config
     print(f"Device: {config['device']}")
     print(f"Subset mode: {config['use_subset']}")
     print(f"Batch size: {config['batch_size']}")
-    print(f"Workers: {config['num_workers']}")
     print()
     
     # Load data
     print("Loading data...")
     train_loader, val_loader = load_data(config)
-    print(f"Train: {len(train_loader.dataset)} images, {len(train_loader)} batches")
-    print(f"Val: {len(val_loader.dataset)} images, {len(val_loader)} batches")
+    print(f"Train: {len(train_loader.dataset)} images")
+    print(f"Val: {len(val_loader.dataset)} images")
     print()
     
-    # Quick test
-    print("Testing data loading...")
-    start = time.time()
-    batch = next(iter(train_loader))
-    print(f"First batch loaded in {time.time() - start:.2f}s")
-    print(f"Batch shape: {batch[0].shape}")
+    # Create model
+    print("Creating model...")
+    model = create_model(num_classes=2, pretrained=True)
+    model = model.to(config['device'])
+    
+    param_count = sum(p.numel() for p in model.parameters())
+    print(f"Model: MobileNetV2 ({param_count:,} parameters)")
     print()
     
-    print("Data loading working. Model setup next.")
+    # Train
+    trainer = Trainer(model, train_loader, val_loader, config)
+    trainer.fit(config['epochs'])
