@@ -37,3 +37,24 @@
 - Added batch visualization to verify transforms working correctly
 - Added preprocessing summary with dataset statistics
 - Documented that train.py will use parallel workers for faster loading
+
+**Data loading and config**
+- Created scripts/train.py for training with parallel data loading
+- num_workers=2 with persistent_workers for 2.5x faster loading
+- Configurable subset mode for fast iteration
+
+**Model setup**
+- MobileNetV2 with pretrained ImageNet weights
+- Replaced classifier head for binary classification
+- 2.2M parameters
+
+**Trainer class**
+- Encapsulates training and validation logic
+- train_epoch() and validate() methods
+- fit() method runs full training
+
+**Saving and history**
+- Tracks loss and accuracy per epoch
+- Saves best model by validation accuracy
+- Saves final model after training
+- Models saved to outputs/models/

@@ -198,6 +198,15 @@ class Trainer:
             model.parameters(), 
             lr=config['learning_rate']
         )
+        
+        # Track metrics
+        self.history = {
+            'train_loss': [],
+            'train_acc': [],
+            'val_loss': [],
+            'val_acc': [],
+        }
+        self.best_val_acc = 0.0
     
     def train_epoch(self):
         """Train for one epoch."""
@@ -248,6 +257,12 @@ class Trainer:
         
         return running_loss / total, correct / total
     
+    def save_model(self, filename):
+        """Save model weights."""
+        save_dir = self.config['model_dir']
+        save_dir.mkdir(parents=True, exist_ok=True)
+        torch.save(self.model.state_dict(), save_dir / filename)
+    
     def fit(self, epochs):
         """Train for multiple epochs."""
         print(f"Training for {epochs} epochs...")
@@ -259,6 +274,17 @@ class Trainer:
             train_loss, train_acc = self.train_epoch()
             val_loss, val_acc = self.validate()
             
+            # Save to history
+            self.history['train_loss'].append(train_loss)
+            self.history['train_acc'].append(train_acc)
+            self.history['val_loss'].append(val_loss)
+            self.history['val_acc'].append(val_acc)
+            
+            # Save best model
+            if val_acc > self.best_val_acc:
+                self.best_val_acc = val_acc
+                self.save_model('best_model.pth')
+            
             elapsed = time.time() - start
             print(f"Epoch {epoch+1:3d}/{epochs} | "
                   f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
@@ -266,6 +292,9 @@ class Trainer:
                   f"Time: {elapsed:.1f}s")
         
         print("-" * 60)
+        print(f"Best validation accuracy: {self.best_val_acc:.4f}")
+        
+        return self.history
 
 
 if __name__ == '__main__':
@@ -280,10 +309,26 @@ if __name__ == '__main__':
     print()
     
     # Load data
+    # Load data
     print("Loading data...")
     train_loader, val_loader = load_data(config)
     print(f"Train: {len(train_loader.dataset)} images")
     print(f"Val: {len(val_loader.dataset)} images")
+    
+    # Verify parallel loading is working
+    print("\nTesting parallel data loading...")
+    start = time.time()
+    _ = next(iter(train_loader))  # First batch (includes worker spawn)
+    first_batch = time.time() - start
+    
+    start = time.time()
+    for i, _ in enumerate(train_loader):
+        if i == 9:
+            break
+    ten_batches = time.time() - start
+    
+    print(f"  First batch: {first_batch:.2f}s (includes worker startup)")
+    print(f"  Next 10 batches: {ten_batches:.2f}s ({ten_batches/10*1000:.0f}ms per batch)")
     print()
     
     # Create model
@@ -297,4 +342,8 @@ if __name__ == '__main__':
     
     # Train
     trainer = Trainer(model, train_loader, val_loader, config)
-    trainer.fit(config['epochs'])
+    history = trainer.fit(config['epochs'])
+    
+    # Save final model
+    trainer.save_model('final_model.pth')
+    print(f"Models saved to {config['model_dir']}/")
