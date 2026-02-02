@@ -5,26 +5,26 @@ Usage:
     python scripts/train.py
 
 Uses parallel data loading (num_workers=2) for speed.
-Run from project root directory.
+Run from project root directory: C:\AWrk\cats_dogs_project> 
 """
+
+import os
+os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
 
 import json
 import time
 from pathlib import Path
 
-import cv2
+import cv2 # Must come AFTER the environ setting
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from sklearn.metrics import precision_score, recall_score, f1_score
 
-
-# =============================================================================
 # Configuration
-# =============================================================================
-
 config = {
     # Paths (relative to project root)
     'data_dir': Path('data/CleanPetImages'),
@@ -32,11 +32,12 @@ config = {
     'model_dir': Path('outputs/models'),
     
     # Training settings
-    'use_subset': True,      # True for fast iteration, False for full training
+    'use_subset': True, # means we use a subset of the dataset (4000 images)
     'batch_size': 32,
-    'num_workers': 2,        # Parallel loading
+    'num_workers': 2,
     'epochs': 10,
     'learning_rate': 0.001,
+    'scheduler': None,  # None, 'step', or 'cosine'
     
     # Image settings
     'image_size': 224,
@@ -45,11 +46,7 @@ config = {
     'device': 'cuda' if torch.cuda.is_available() else 'cpu',
 }
 
-
-# =============================================================================
 # Dataset
-# =============================================================================
-
 class CatsDogsDataset(Dataset):
     """Dataset for cats vs dogs classification."""
     
@@ -77,13 +74,10 @@ class CatsDogsDataset(Dataset):
         return image, label
 
 
-# =============================================================================
-# Transforms
-# =============================================================================
 
+# Transforms
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
-
 
 def get_train_transforms(image_size=224):
     """Training transforms with augmentation."""
@@ -106,10 +100,7 @@ def get_val_transforms(image_size=224):
     ])
 
 
-# =============================================================================
 # Data Loading
-# =============================================================================
-
 def load_data(config):
     """Load split data and create dataloaders."""
     
@@ -160,10 +151,8 @@ def load_data(config):
     
     return train_loader, val_loader
 
-# =============================================================================
-# Model
-# =============================================================================
 
+# Model
 def create_model(num_classes=2, pretrained=True):
     """Create MobileNetV2 with pretrained weights."""
     from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
@@ -179,10 +168,7 @@ def create_model(num_classes=2, pretrained=True):
     return model
 
 
-# =============================================================================
 # Trainer
-# =============================================================================
-
 class Trainer:
     """Handles model training and validation."""
     
@@ -199,12 +185,24 @@ class Trainer:
             lr=config['learning_rate']
         )
         
+        # Learning rate scheduler (optional)
+        self.scheduler = None
+        if config.get('scheduler') == 'step':
+            self.scheduler = torch.optim.lr_scheduler.StepLR(
+                self.optimizer, step_size=5, gamma=0.5
+            )
+        elif config.get('scheduler') == 'cosine':
+            self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                self.optimizer, T_max=config['epochs']
+            )
+        
         # Track metrics
         self.history = {
             'train_loss': [],
             'train_acc': [],
             'val_loss': [],
             'val_acc': [],
+            'lr': [],
         }
         self.best_val_acc = 0.0
     
@@ -234,13 +232,15 @@ class Trainer:
         
         return running_loss / total, correct / total
     
-    def validate(self):
+    def validate(self, return_extended_metrics=False):
         """Validate the model."""
         self.model.eval()
         
         running_loss = 0.0
         correct = 0
         total = 0
+        all_preds = []
+        all_labels = []
         
         with torch.no_grad():
             for images, labels in self.val_loader:
@@ -254,8 +254,20 @@ class Trainer:
                 _, predicted = outputs.max(1)
                 total += labels.size(0)
                 correct += predicted.eq(labels).sum().item()
+                
+                all_preds.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
         
-        return running_loss / total, correct / total
+        loss = running_loss / total
+        acc = correct / total
+        
+        if return_extended_metrics:
+            precision = precision_score(all_labels, all_preds, average='binary')
+            recall = recall_score(all_labels, all_preds, average='binary')
+            f1 = f1_score(all_labels, all_preds, average='binary')
+            return loss, acc, precision, recall, f1
+        
+        return loss, acc
     
     def save_model(self, filename):
         """Save model weights."""
@@ -263,10 +275,24 @@ class Trainer:
         save_dir.mkdir(parents=True, exist_ok=True)
         torch.save(self.model.state_dict(), save_dir / filename)
     
-    def fit(self, epochs):
-        """Train for multiple epochs."""
-        print(f"Training for {epochs} epochs...")
+    def get_lr(self):
+        """Get current learning rate."""
+        return self.optimizer.param_groups[0]['lr']
+    
+    def fit(self, epochs, patience=None):
+        """
+        Train for multiple epochs.
+        
+        Args:
+            epochs: maximum epochs to train
+            patience: stop if val_acc doesn't improve for this many epochs (None = no early stopping)
+        """
+        print(f"Training for up to {epochs} epochs...")
+        if patience:
+            print(f"Early stopping patience: {patience}")
         print("-" * 60)
+        
+        epochs_without_improvement = 0
         
         for epoch in range(epochs):
             start = time.time()
@@ -274,22 +300,35 @@ class Trainer:
             train_loss, train_acc = self.train_epoch()
             val_loss, val_acc = self.validate()
             
+            # Step scheduler
+            if self.scheduler:
+                self.scheduler.step()
+            
             # Save to history
             self.history['train_loss'].append(train_loss)
             self.history['train_acc'].append(train_acc)
             self.history['val_loss'].append(val_loss)
             self.history['val_acc'].append(val_acc)
+            self.history['lr'].append(self.get_lr())
             
-            # Save best model
+            # Check for improvement
             if val_acc > self.best_val_acc:
                 self.best_val_acc = val_acc
                 self.save_model('best_model.pth')
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
             
             elapsed = time.time() - start
             print(f"Epoch {epoch+1:3d}/{epochs} | "
                   f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
                   f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
-                  f"Time: {elapsed:.1f}s")
+                  f"LR: {self.get_lr():.6f} | Time: {elapsed:.1f}s")
+            
+            # Early stopping
+            if patience and epochs_without_improvement >= patience:
+                print(f"\nEarly stopping: no improvement for {patience} epochs")
+                break
         
         print("-" * 60)
         print(f"Best validation accuracy: {self.best_val_acc:.4f}")
@@ -308,7 +347,6 @@ if __name__ == '__main__':
     print(f"Batch size: {config['batch_size']}")
     print()
     
-    # Load data
     # Load data
     print("Loading data...")
     train_loader, val_loader = load_data(config)
@@ -342,7 +380,7 @@ if __name__ == '__main__':
     
     # Train
     trainer = Trainer(model, train_loader, val_loader, config)
-    history = trainer.fit(config['epochs'])
+    history = trainer.fit(config['epochs'], patience=5)
     
     # Save final model
     trainer.save_model('final_model.pth')
