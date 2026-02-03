@@ -22,14 +22,34 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Model outputs (can regenerate)
-# outputs/models/*.pth
-# outputs/final/*.pth
-# outputs/final_active_learning/*.pth
-# outputs/final_resnet18/*.pth
 outputs/models/*
 outputs/final/*
 outputs/final_active_learning/*
 outputs/final_resnet18/*
 outputs/experiments/*
 
+# C++ build artifacts
+cpp_inference/build/
+*.exe
+*.obj
+*.pdb
+*.ilk
+
+# TensorRT engines (large binary files)
+*.engine
+
+# ONNX models
+*.onnx
+*.onnx.data
+
+# PyTorch models (optional - you may want to keep these)
+# *.pth
+
+# Experiment outputs (can be regenerated)
+outputs/experiments/checkpoint.json
+
+# IDE
+.vs/
+*.vcxproj.user
+CMakeCache.txt
+CMakeFiles/
