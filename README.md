@@ -30,7 +30,7 @@ For TensorRT and C++ setup, see INSTALL.md.
 
 ## Dataset
 
-Download from: https://www.microsoft.com/en-us/download/details.aspx?id=54765
+Download from: https://www.kaggle.com/competitions/dogs-vs-cats/data
 
 Extract to data/PetImages/. The raw dataset has ~25,000 images across Cat/ and Dog/ folders.
 
