@@ -1,6 +1,6 @@
 # Cats vs Dogs Classifier
 
-Binary image classifier using transfer learning with PyTorch. Trained on the Microsoft Cats vs Dogs dataset (~25,000 images) with MobileNetV2 and ResNet18 architectures. Includes model export to ONNX and TensorRT for deployment, with a native C++ inference application.
+Binary image classifier using transfer learning with PyTorch. Trained on the Kaggle Cats vs Dogs dataset (~25,000 images) with MobileNetV2 and ResNet18 architectures. Includes model export to ONNX and TensorRT for deployment, with a native C++ inference application.
 
 Built on Windows with an RTX 3050 Laptop GPU (4GB VRAM).
 
