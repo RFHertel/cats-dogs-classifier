@@ -3,24 +3,26 @@ project(catdog_inference CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Paths
+find_package(CUDAToolkit REQUIRED)
+
 set(TENSORRT_ROOT "C:/TensorRT/TensorRT-10.15.1.29")
-set(CUDA_ROOT "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.6")
+set(OPENCV_ROOT "C:/opencv/build")
 
 include_directories(
     ${TENSORRT_ROOT}/include
-    ${CUDA_ROOT}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CUDAToolkit_INCLUDE_DIRS}
+    ${OPENCV_ROOT}/include
 )
 
 link_directories(
     ${TENSORRT_ROOT}/lib
-    ${CUDA_ROOT}/lib/x64
+    ${OPENCV_ROOT}/x64/vc16/lib
 )
 
 add_executable(catdog_inference main.cpp)
 
 target_link_libraries(catdog_inference
     nvinfer_10
-    cudart
+    CUDA::cudart
+    opencv_world4120
 )
