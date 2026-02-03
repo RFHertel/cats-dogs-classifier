@@ -116,6 +116,16 @@ Verify (new terminal):
 cmake --version
 ```
 
+### OpenCV
+
+1. Go to https://opencv.org/releases/
+2. Download the latest Windows version (self-extracting exe)
+3. Run it and extract to C:\opencv\
+4. Add to system PATH: C:\opencv\build\x64\vc16\bin
+
+The folder name might be vc15 or vc16 depending on version. Check what's
+inside C:\opencv\build\x64\ and use whatever is there.
+
 ### CUDA Toolkit
 
 You need the full CUDA Toolkit, not just the runtime that comes with PyTorch.

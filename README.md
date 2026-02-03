@@ -68,7 +68,7 @@ cats_dogs_project/
     cpp_inference/
         CMakeLists.txt
         main.cpp                            Native C++ TensorRT inference
-        stb_image.h
+
 
     outputs/
         splits/                             Train/val/test split files
@@ -244,13 +244,14 @@ TensorRT FP16 gives 2.5-5.9x speedup over the alternatives. Preprocessing (OpenC
 
 ## C++ Inference
 
-Native C++ TensorRT inference in cpp_inference/. Uses stb_image for image loading so there's no OpenCV dependency on the C++ side.
+Native C++ TensorRT inference in cpp_inference/. Uses OpenCV for image preprocessing (bilinear resize and normalization), matching the Python training pipeline exactly.
 
 ### Requirements
 - Visual Studio Build Tools 2022+
 - CMake 3.18+
 - CUDA Toolkit 12.x
 - TensorRT 10.x
+- OpenCV 4.x (prebuilt)
 
 ### Build
 
