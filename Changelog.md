@@ -108,3 +108,68 @@
 - Reports accuracy, precision, recall, F1, confusion matrix
 - Uses parallel data loading for efficient batch processing
 - Output directory defaults to model's parent directory
+
+**export_model.py - ONNX export**
+- Exports PyTorch models to ONNX format for deployment
+- Supports MobileNetV2 and ResNet18
+- Verifies exported model and tests inference
+- Significant size reduction (8.7 MB → 0.2 MB for MobileNetV2)
+- ONNX enables framework-agnostic inference and GPU acceleration via ONNX Runtime
+
+**benchmark_inference.py - Performance benchmarking**
+- Compares PyTorch, ONNX Runtime, and TensorRT FP16 inference
+- Measures preprocessing (OpenCV) and inference separately
+- Reports end-to-end throughput in FPS
+
+**inference.py - Single image classification**
+- Classifies any image as Cat or Dog
+- Supports PyTorch (.pth) and TensorRT (.engine) models
+- Works with both MobileNetV2 and ResNet18 architectures
+- Simple command-line interface
+
+**evaluate_tensorrt.py - TensorRT model evaluation**
+- Evaluates TensorRT engine files on validation or test set
+- Outputs accuracy, precision, recall, F1, confusion matrix
+- Saves predictions CSV and example images
+- Processes images one at a time (batch=1, matching engine export)
+
+### Native C++ Validation
+
+The exported TensorRT engines were validated using NVIDIA's trtexec tool,
+confirming compatibility with native C++ deployment:
+
+**MobileNetV2 (FP16):**
+
+trtexec --loadEngine=outputs/final/final_model_fp16.engine
+
+Performance Summary:
+- Throughput: 1,662 queries/second
+- Mean latency: 0.544 ms
+- GPU compute: 0.487 ms
+- Memory transfer: 0.057 ms (H2D + D2H)
+
+
+**ResNet18 (FP16):**
+
+trtexec --loadEngine=outputs/final_resnet18/final_resnet18_model_fp16.engine
+
+Performance Summary:
+- Throughput: 2,074 queries/second
+- Mean latency: 0.435 ms
+- GPU compute: 0.380 ms
+- Memory transfer: 0.054 ms (H2D + D2H)
+
+
+This demonstrates the model is ready for production C++ deployment
+with sub-millisecond inference latency.
+
+I validated the TensorRT engine using trtexec, which is NVIDIA's native C++ benchmarking tool. For production deployment, I would integrate the engine using TensorRT's C++ API following their sample code patterns.
+
+TensorRT engine files are GPU-specific. They were built on an RTX 3050 Laptop GPU and will need to be regenerated on different hardware using the export script.
+
+**Then fully implemented MobileNetV2 (FP16) and ResNet18 (FP16):**
+- Main.cpp uses stb_image.h for image loading
+- Inference with two TensorRT engine files
+- MobileNetV2: Inference: 0.41817 ms, Throughput: 2391.37 FPS
+- ResNet18: Inference: 0.430735 ms, Throughput: 2321.61 FPS
+
