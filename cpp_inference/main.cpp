@@ -84,6 +84,10 @@ int main(int argc, char* argv[]) {
     nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engineData.data(), size);
     nvinfer1::IExecutionContext* context = engine->createExecutionContext();
 
+    // Create CUDA stream
+    cudaStream_t stream;
+    cudaStreamCreate(&stream);
+
     // Allocate buffers
     const int inputSize = 1 * 3 * 224 * 224;
     const int outputSize = 2;
@@ -111,17 +115,17 @@ int main(int argc, char* argv[]) {
 
     // Warmup
     for (int i = 0; i < 10; i++) {
-        context->enqueueV3(0);
+        context->enqueueV3(stream);
     }
-    cudaDeviceSynchronize();
+    cudaStreamSynchronize(stream);
 
     // Benchmark
     const int iterations = 100;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iterations; i++) {
-        context->enqueueV3(0);
+        context->enqueueV3(stream);
     }
-    cudaDeviceSynchronize();
+    cudaStreamSynchronize(stream);
     auto end = std::chrono::high_resolution_clock::now();
     double avgMs = std::chrono::duration<double, std::milli>(end - start).count() / iterations;
 
@@ -154,6 +158,7 @@ int main(int argc, char* argv[]) {
     // Cleanup
     delete[] hostInput;
     delete[] hostOutput;
+    cudaStreamDestroy(stream);
     cudaFree(deviceInput);
     cudaFree(deviceOutput);
     delete context;

@@ -11,7 +11,7 @@ Examples:
 
 Run from project root directory: C:\AWrk\cats_dogs_project> 
 """
-
+import sys
 import os
 os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
 
@@ -55,7 +55,16 @@ def load_engine(engine_path):
 
 def preprocess(image_path, size=224):
     """Preprocess single image."""
+    # Suppress libjpeg warnings (writes to C-level stderr)
+    fd = sys.stderr.fileno()
+    old_stderr = os.dup(fd)
+    os.dup2(os.open(os.devnull, os.O_WRONLY), fd)
+    
     img = cv2.imread(str(image_path))
+    
+    os.dup2(old_stderr, fd)
+    os.close(old_stderr)
+    
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (size, size))
     img = img.astype(np.float32) / 255.0

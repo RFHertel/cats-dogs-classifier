@@ -36,6 +36,17 @@ from sklearn.metrics import (
 
 from train import CatsDogsDataset, IMAGENET_MEAN, IMAGENET_STD
 
+import sys
+
+def silent_imread(path):
+    """Load image while suppressing libjpeg warnings."""
+    fd = sys.stderr.fileno()
+    old_stderr = os.dup(fd)
+    os.dup2(os.open(os.devnull, os.O_WRONLY), fd)
+    img = cv2.imread(str(path))
+    os.dup2(old_stderr, fd)
+    os.close(old_stderr)
+    return img
 
 # Config
 CONFIG = {
@@ -190,7 +201,7 @@ def save_example_images(files, predictions, probabilities, labels, data_dir, out
         
         # Load original image
         img_path = Path(data_dir) / filepath
-        img = cv2.imread(str(img_path))
+        img = silent_imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
         ax.imshow(img)

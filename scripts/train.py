@@ -24,6 +24,18 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from sklearn.metrics import precision_score, recall_score, f1_score
 
+import sys
+
+def silent_imread(path):
+    """Load image while suppressing libjpeg warnings."""
+    fd = sys.stderr.fileno()
+    old_stderr = os.dup(fd)
+    os.dup2(os.open(os.devnull, os.O_WRONLY), fd)
+    img = cv2.imread(str(path))
+    os.dup2(old_stderr, fd)
+    os.close(old_stderr)
+    return img
+
 # Configuration
 config = {
     # Paths (relative to project root)
@@ -64,7 +76,7 @@ class CatsDogsDataset(Dataset):
         label = self.labels[index]
         
         img_path = str(self.data_dir / rel_path)
-        image = cv2.imread(img_path)
+        image = silent_imread(img_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
         if self.transform:
